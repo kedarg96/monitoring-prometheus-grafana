@@ -1,0 +1,27 @@
+groups:
+  - name: app-alerts
+    rules:
+      - alert: AppDown
+        expr: up{job="app"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "App is down"
+          description: "The app target has been unreachable for 30 seconds."
+
+      - alert: HighErrorRate
+        expr: sum(rate(app_requests_total{status="500"}[1m])) / sum(rate(app_requests_total[1m])) > 0.2
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "More than 20 percent of requests are failing"
+
+      - alert: HighCpuUsage
+        expr: 100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[1m])) * 100) > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU usage is above 80 percent"
